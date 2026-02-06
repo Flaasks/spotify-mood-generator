@@ -131,23 +131,23 @@ const explanationFromMerged = (merged: ReturnType<typeof mergeTargets>): string[
   const explanations: string[] = []
 
   if (merged.warmth >= 0.6) {
-    explanations.push('Colori caldi prevalenti, energia e valence piu alte.')
+    explanations.push('Colori caldi prevalenti, energia e valence piu alte')
   } else if (merged.warmth <= 0.4) {
-    explanations.push('Colori freddi prevalenti, mood piu malinconico.')
+    explanations.push('Colori freddi prevalenti, mood piu malinconico')
   } else {
-    explanations.push('Warmth bilanciata, mood intermedio.')
+    explanations.push('Warmth bilanciata, mood intermedio')
   }
 
   if (merged.saturation >= 0.6) {
-    explanations.push('Saturazione alta, danceability elevata.')
+    explanations.push('Saturazione alta, danceability elevata')
   } else if (merged.saturation <= 0.35) {
-    explanations.push('Saturazione bassa, danceability moderata.')
+    explanations.push('Saturazione bassa, danceability moderata')
   }
 
   if (merged.lightness <= 0.4) {
-    explanations.push('Luminosita bassa, acousticness e instrumentalness piu alte.')
+    explanations.push('Luminosita bassa, acousticness e instrumentalness piu alte')
   } else if (merged.lightness >= 0.65) {
-    explanations.push('Luminosita alta, mood piu aperto e brillante.')
+    explanations.push('Luminosita alta, mood piu aperto e brillante')
   }
 
   return explanations

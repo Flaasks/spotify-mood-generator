@@ -1,4 +1,5 @@
 import NextAuth, { type NextAuthOptions } from 'next-auth'
+import type { JWT } from 'next-auth/jwt'
 import SpotifyProvider from 'next-auth/providers/spotify'
 
 const scopes = [
@@ -34,7 +35,10 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Refresh token se scaduto
-      if (token.expiresAt && token.expiresAt < Date.now() / 1000) {
+      if (
+        typeof token.expiresAt === 'number' &&
+        token.expiresAt < Date.now() / 1000
+      ) {
         return refreshAccessToken(token)
       }
 
@@ -51,19 +55,38 @@ export const authOptions: NextAuthOptions = {
   },
 }
 
-async function refreshAccessToken(token: any) {
+async function refreshAccessToken(token: JWT) {
   try {
-    const response = await fetch('https://api.spotify.com/v1/me', {
+    if (typeof token.refreshToken !== 'string' || !token.refreshToken) {
+      throw new Error('Missing refresh token')
+    }
+
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
       headers: {
-        Authorization: `Bearer ${token.accessToken}`,
+        Authorization: `Basic ${Buffer.from(
+          `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
+        ).toString('base64')}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: token.refreshToken,
+      }),
     })
 
     if (!response.ok) {
       throw new Error('Token refresh failed')
     }
 
-    return token
+    const refreshedTokens = await response.json()
+
+    return {
+      ...token,
+      accessToken: refreshedTokens.access_token,
+      expiresAt: Math.floor(Date.now() / 1000) + refreshedTokens.expires_in,
+      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
+    }
   } catch (error) {
     console.error('Error refreshing access token:', error)
     return { ...token, error: 'RefreshAccessTokenError' }

@@ -44,9 +44,22 @@ type GenerateResponse = {
   analysis: Analysis | null
 }
 
+type ProgressWidth = {
+  energy: number
+  valence: number
+  danceability: number
+  acousticness: number
+  instrumentalness: number
+  tempo: number
+  loudness: number
+}
+
+const easeOut = [0.16, 1, 0.3, 1] as const
+const linear = [0, 0, 1, 1] as const
+
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: easeOut } },
 }
 
 const staggerContainer = {
@@ -59,17 +72,17 @@ const staggerContainer = {
 
 const staggerItem = {
   hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: easeOut } },
 }
 
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.8 },
-  show: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: 'easeOut' } },
+  show: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: easeOut } },
 }
 
 const spin = {
   rotate: 360,
-  transition: { duration: 1.5, repeat: Infinity, ease: 'linear' },
+  transition: { duration: 1.5, repeat: Infinity, ease: linear },
 }
 
 export default function Home() {
@@ -143,7 +156,7 @@ export default function Home() {
     setResult(null)
 
     if (!imageBase64) {
-      setErrorMessage('Upload an image to continue.')
+      setErrorMessage('Upload an image to continue')
       return
     }
 
@@ -161,12 +174,12 @@ export default function Home() {
       })
 
       if (response.status === 401) {
-        setErrorMessage('Sign in with Spotify to generate a playlist.')
+        setErrorMessage('Sign in with Spotify to generate a playlist')
         return
       }
 
       if (!response.ok) {
-        setErrorMessage('Failed to create a playlist. Try again.')
+        setErrorMessage('Failed to create a playlist. Try again')
         return
       }
 
@@ -174,7 +187,7 @@ export default function Home() {
       setResult(data)
     } catch (error) {
       console.error('Failed to generate playlist', error)
-      setErrorMessage('Something went wrong. Try again.')
+      setErrorMessage('Something went wrong. Try again')
     } finally {
       setIsLoading(false)
     }
@@ -195,7 +208,7 @@ export default function Home() {
     ]
   }, [result])
 
-  const progressWidth = useMemo(() => {
+  const progressWidth = useMemo<ProgressWidth | null>(() => {
     if (!result?.derivedTargets) return null
     const targets = result.derivedTargets
     return {
@@ -418,7 +431,7 @@ export default function Home() {
                 <p className="text-xs sm:text-sm font-semibold">Audio targets</p>
                 <motion.div className="space-y-2 sm:space-y-3" variants={staggerContainer} initial="hidden" animate="show">
                   {targetRows.map((row, index) => {
-                    const widthKey = row.label.toLowerCase().replace(/ /g, '') as keyof (ReturnType<typeof progressWidth> || {})
+                    const widthKey = row.label.toLowerCase().replace(/ /g, '') as keyof ProgressWidth
                     const width = progressWidth?.[widthKey] ?? 0
                     return (
                       <motion.div key={row.label} variants={staggerItem} className="space-y-1.5 sm:space-y-2">
@@ -436,7 +449,7 @@ export default function Home() {
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${width}%` }}
-                            transition={{ duration: 0.8, ease: 'easeOut', delay: index * 0.05 }}
+                            transition={{ duration: 0.8, ease: easeOut, delay: index * 0.05 }}
                             className="h-full rounded-full bg-gradient-to-r from-[#1a1c20] to-[#3c414c]"
                           />
                         </div>
