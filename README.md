@@ -1,10 +1,8 @@
 # Spotify Mood Generator
 
-Generate Spotify playlists based on the mood and colors of an image. Upload a photo, extract its dominant colors, and get a curated playlist that matches the atmosphere.
+## Features
 
-## 🎨 Features
-
-- **Image-to-Mood Analysis** - Upload any photo (sunset, rainy city, party scene) and analyze its dominant colors
+- **Image-to-Mood Analysis** - Upload any photo (ex. sunset, rainy city, party scene) and analyze its dominant colors
 - **Color-based Audio Mapping** - Convert color palettes to Spotify audio characteristics:
   - Energy, Valence, Danceability
   - Acousticness, Instrumentalness
@@ -13,7 +11,7 @@ Generate Spotify playlists based on the mood and colors of an image. Upload a ph
 - **Responsive Design** - Mobile-optimized UI with smooth animations
 - **OAuth2 Authentication** - Secure login via Spotify
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -33,9 +31,8 @@ npm install
 
 1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 2. Create a new app (e.g., "Spotify Mood Generator")
-3. Accept the terms and create
-4. Copy your **Client ID** and **Client Secret**
-5. In app settings, add Redirect URI: `http://localhost:3000/api/auth/callback/spotify`
+3. Copy your **Client ID** and **Client Secret**
+4. In app settings, add Redirect URI: `http://localhost:3000/api/auth/callback/spotify`
 
 ### 3. Configure Environment
 
@@ -66,7 +63,7 @@ NEXT_PUBLIC_SPOTIFY_API_BASE=https://api.spotify.com/v1
 openssl rand -base64 32
 ```
 
-Or use [this online generator](https://generate-secret.vercel.app/32).
+Or use [this online generator](https://generate-secret.vercel.app/32)
 
 ### 4. Run Development Server
 
@@ -74,7 +71,7 @@ Or use [this online generator](https://generate-secret.vercel.app/32).
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and sign in with Spotify.
+Open [http://localhost:3000](http://localhost:3000) and sign in with Spotify
 
 ### 5. Test the App
 
@@ -84,16 +81,15 @@ Open [http://localhost:3000](http://localhost:3000) and sign in with Spotify.
 4. Select up to 5 genres
 5. Enter playlist name/description
 6. Click "Generate Playlist"
-7. Your playlist will be created on Spotify!
+7. Your playlist will be created on Spotify
 
-## 🔒 Security
+## Security
 
-- ✅ Credentials stored in `.env.local` (gitignored)
-- ✅ No sensitive data logged or exposed
-- ✅ `.env.local` will never be committed
-- ✅ `.env.example` safe for public repository
+- Credentials stored in `.env.local` (gitignored)
+- No sensitive data logged or exposed
+- `.env.example` safe for public repository
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 app/
@@ -119,7 +115,7 @@ components/ui/            # Shadcn UI components
   └── badge.tsx
 ```
 
-## 🎯 How It Works
+## How It Works
 
 ### Color → Audio Parameter Mapping
 
@@ -138,7 +134,7 @@ components/ui/            # Shadcn UI components
    - **Tempo**: 60-180 BPM range based on overall metrics
    - **Loudness**: -60 to 0 dB range (Spotify standard)
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: Next.js 16 (App Router, TypeScript)
 - **UI**: React 19 + Tailwind CSS 4 + Shadcn UI
@@ -147,6 +143,6 @@ components/ui/            # Shadcn UI components
 - **Authentication**: NextAuth.js (Spotify OAuth2)
 - **HTTP Client**: Axios
 
-## 📝 License
+## License
 
 MIT
