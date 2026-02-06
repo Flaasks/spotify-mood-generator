@@ -1,36 +1,152 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Spotify Mood Generator
 
-## Getting Started
+Generate Spotify playlists based on the mood and colors of an image. Upload a photo, extract its dominant colors, and get a curated playlist that matches the atmosphere.
 
-First, run the development server:
+## 🎨 Features
+
+- **Image-to-Mood Analysis** - Upload any photo (sunset, rainy city, party scene) and analyze its dominant colors
+- **Color-based Audio Mapping** - Convert color palettes to Spotify audio characteristics:
+  - Energy, Valence, Danceability
+  - Acousticness, Instrumentalness
+  - Tempo (BPM), Loudness (dB)
+- **Spotify Integration** - Browse genres and generate playlists on your account
+- **Responsive Design** - Mobile-optimized UI with smooth animations
+- **OAuth2 Authentication** - Secure login via Spotify
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js ≥ 20.9.0
+- npm or yarn
+- Spotify Developer Account (free)
+
+### 1. Clone & Install
+
+```bash
+git clone <your-repo-url>
+cd spotify-mood-generator
+npm install
+```
+
+### 2. Get Spotify Credentials
+
+1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Create a new app (e.g., "Spotify Mood Generator")
+3. Accept the terms and create
+4. Copy your **Client ID** and **Client Secret**
+5. In app settings, add Redirect URI: `http://localhost:3000/api/auth/callback/spotify`
+
+### 3. Configure Environment
+
+Copy `.env.example` to `.env.local` and fill in your values:
+
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local`:
+
+```env
+# Spotify OAuth
+SPOTIFY_CLIENT_ID=your_client_id_here
+SPOTIFY_CLIENT_SECRET=your_client_secret_here
+
+# NextAuth.js
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_secret_here
+
+# Spotify API
+NEXT_PUBLIC_SPOTIFY_API_BASE=https://api.spotify.com/v1
+```
+
+**Generate NEXTAUTH_SECRET securely:**
+
+```bash
+openssl rand -base64 32
+```
+
+Or use [this online generator](https://generate-secret.vercel.app/32).
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) and sign in with Spotify.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 5. Test the App
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Click "Sign in with Spotify"
+2. Authorize the requested permissions
+3. Upload an image
+4. Select up to 5 genres
+5. Enter playlist name/description
+6. Click "Generate Playlist"
+7. Your playlist will be created on Spotify!
 
-## Learn More
+## 🔒 Security
 
-To learn more about Next.js, take a look at the following resources:
+- ✅ Credentials stored in `.env.local` (gitignored)
+- ✅ No sensitive data logged or exposed
+- ✅ `.env.local` will never be committed
+- ✅ `.env.example` safe for public repository
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📁 Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+app/
+  ├── page.tsx              # Main upload & generation UI
+  ├── layout.tsx            # App layout with fonts & auth provider
+  └── api/
+      ├── auth/             # NextAuth.js routes
+      ├── genres/           # Spotify genres endpoint
+      └── playlist/
+          └── generate/     # Image → Playlist generation
 
-## Deploy on Vercel
+lib/
+  ├── mood/
+  │   └── color-mapper.ts  # Color extraction & audio mapping
+  └── spotify/
+      └── client.ts        # Spotify API client
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+components/ui/            # Shadcn UI components
+  ├── button.tsx
+  ├── input.tsx
+  ├── textarea.tsx
+  ├── label.tsx
+  └── badge.tsx
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎯 How It Works
+
+### Color → Audio Parameter Mapping
+
+1. **Extract Palette** - Uses vibrant library to get top 5 colors from image
+2. **Weighted Analysis** - Dominant color (45% weight) + remaining colors distributed by population
+3. **Mood Metrics** - Each color converted to:
+   - **Warmth**: 0-1 based on hue (reds/oranges = warm, blues/purples = cool)
+   - **Saturation**: 0-1 from HSL color space
+   - **Lightness**: 0-1 from HSL color space
+4. **Audio Targets** - Metrics combined into Spotify recommendations:
+   - **Energy**: High for warm, saturated, bright colors
+   - **Valence**: Similar to energy (positivity)
+   - **Danceability**: Driven by saturation
+   - **Acousticness**: High for cool, desaturated, dark colors
+   - **Instrumentalness**: High for cool, desaturated, dark colors
+   - **Tempo**: 60-180 BPM range based on overall metrics
+   - **Loudness**: -60 to 0 dB range (Spotify standard)
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 16 (App Router, TypeScript)
+- **UI**: React 19 + Tailwind CSS 4 + Shadcn UI
+- **Animations**: Framer Motion
+- **Color Analysis**: node-vibrant + chroma-js
+- **Authentication**: NextAuth.js (Spotify OAuth2)
+- **HTTP Client**: Axios
+
+## 📝 License
+
+MIT
