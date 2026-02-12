@@ -37,10 +37,15 @@ export async function POST(request: Request) {
       playlistDescription,
     } = await request.json()
 
+    console.log('[playlist/generate] Starting analysis with imageBase64:', !!imageBase64)
+
     let derivedTargets
     if (imageUrl || imageBase64) {
+      console.log('[playlist/generate] Analyzing image...')
       derivedTargets = await analyzeImageToAudioTargets({ imageUrl, imageBase64 })
+      console.log('[playlist/generate] Analysis complete:', !!derivedTargets)
     } else if (Array.isArray(paletteHex) && paletteHex.length > 0) {
+      console.log('[playlist/generate] Using provided palette')
       derivedTargets = mapPaletteToAudioTargets(paletteHex)
     }
 
@@ -60,6 +65,7 @@ export async function POST(request: Request) {
     const spotify = new SpotifyAPI(session.accessToken)
 
     // Get recommendations based on mood
+    console.log('[playlist/generate] Fetching recommendations with targets:', resolvedTargets)
     const recommendations = await spotify.getRecommendations({
       seed_genres: seed_genres ? seed_genres.slice(0, 5).join(',') : undefined,
       seed_artists: seed_artists ? seed_artists.slice(0, 5).join(',') : undefined,
@@ -72,17 +78,22 @@ export async function POST(request: Request) {
       target_loudness: resolvedTargets.target_loudness,
       limit: 50,
     })
+    console.log('[playlist/generate] Got', recommendations.length, 'recommendations')
 
     // Get current user
+    console.log('[playlist/generate] Fetching current user...')
     const user = await spotify.getCurrentUser()
+    console.log('[playlist/generate] Current user:', user.id)
 
     // Create playlist
+    console.log('[playlist/generate] Creating playlist...')
     const playlistId = await spotify.createPlaylist(
       user.id,
       playlistName || 'Mood Playlist',
       playlistDescription || 'Generated from image mood',
       false
     )
+    console.log('[playlist/generate] Playlist created:', playlistId)
 
     // Add tracks to playlist
     const trackUris = recommendations
@@ -102,9 +113,10 @@ export async function POST(request: Request) {
       analysis: derivedTargets?.analysis ?? null,
     })
   } catch (error) {
-    console.error('Error in playlist API:', error)
+    console.error('[playlist/generate] Error:', error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
     return NextResponse.json(
-      { error: 'Failed to create playlist' },
+      { error: 'Failed to create playlist', details: errorMessage },
       { status: 500 }
     )
   }

@@ -90,7 +90,6 @@ export default function Home() {
   const [imageBase64, setImageBase64] = useState<string | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [playlistName, setPlaylistName] = useState('')
-  const [playlistDescription, setPlaylistDescription] = useState('')
   const [genres, setGenres] = useState<string[]>([])
   const [selectedGenres, setSelectedGenres] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -169,7 +168,6 @@ export default function Home() {
           imageBase64,
           seed_genres: selectedGenres,
           playlistName: playlistName || undefined,
-          playlistDescription: playlistDescription || undefined,
         }),
       })
 
@@ -240,11 +238,10 @@ export default function Home() {
             <span className="rounded-full bg-white/70 px-2 sm:px-3 py-1">Spotify playlist</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-semibold leading-tight md:text-5xl lg:text-6xl">
-            Turn image atmosphere into a Spotify playlist.
+            Turn image atmosphere into a Spotify playlist
           </h1>
           <p className="max-w-2xl text-sm sm:text-base leading-relaxed text-[#5a5f6a] md:text-lg">
-            Upload a photo, let the colors guide the mood, and generate audio targets tuned
-            for energy, valence, and danceability. Fine-tune with genres if you want.
+            Upload a photo and see the magic happen. We extract the colors, analyze the mood, and generate a playlist that vibes with your image
           </p>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <Button onClick={handleGenerate} size="lg" disabled={isLoading}>
@@ -294,25 +291,14 @@ export default function Home() {
                 <Input id="image" type="file" accept="image/*" onChange={handleFileChange} />
               </motion.div>
 
-              <motion.div variants={staggerItem} className="grid gap-4 sm:gap-6 lg:grid-cols-1 xl:grid-cols-2">
-                <div className="space-y-2 sm:space-y-3">
-                  <Label htmlFor="playlist-name" className="text-xs sm:text-sm">Playlist name</Label>
-                  <Input
-                    id="playlist-name"
-                    placeholder="Sunset city drive"
-                    value={playlistName}
-                    onChange={(event) => setPlaylistName(event.target.value)}
-                  />
-                </div>
-                <div className="space-y-2 sm:space-y-3">
-                  <Label htmlFor="playlist-description" className="text-xs sm:text-sm">Description</Label>
-                  <Textarea
-                    id="playlist-description"
-                    placeholder="Generated from color mood"
-                    value={playlistDescription}
-                    onChange={(event) => setPlaylistDescription(event.target.value)}
-                  />
-                </div>
+              <motion.div variants={staggerItem} className="space-y-2 sm:space-y-3">
+                <Label htmlFor="playlist-name" className="text-xs sm:text-sm">Playlist name <span className="text-[#6b707b]">(optional)</span></Label>
+                <Input
+                  id="playlist-name"
+                  placeholder="e.g. Sunset city drive"
+                  value={playlistName}
+                  onChange={(event) => setPlaylistName(event.target.value)}
+                />
               </motion.div>
 
               <motion.div variants={staggerItem} className="space-y-3 sm:space-y-4">
