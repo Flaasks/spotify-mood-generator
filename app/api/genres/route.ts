@@ -6,7 +6,11 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    console.log('[genres] Session check:', !!session?.accessToken)
+    console.log('[genres] Session:', {
+      hasSession: !!session,
+      hasToken: !!session?.accessToken,
+      tokenStart: session?.accessToken?.substring(0, 10),
+    })
 
     if (!session?.accessToken) {
       console.log('[genres] No access token found')
@@ -16,10 +20,11 @@ export async function GET() {
       )
     }
 
+    console.log('[genres] Token:', session.accessToken.substring(0, 10) + '....')
     const spotify = new SpotifyAPI(session.accessToken)
-    console.log('[genres] Fetching genres from Spotify...')
+    console.log('[genres] Created SpotifyAPI, calling getGenres()...')
     const genres = await spotify.getGenres()
-    console.log('[genres] Got', genres.length, 'genres')
+    console.log('[genres] Success! Got', genres.length, 'genres')
 
     return NextResponse.json({ genres })
   } catch (error) {

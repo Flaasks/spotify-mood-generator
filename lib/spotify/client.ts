@@ -30,6 +30,7 @@ export class SpotifyAPI {
 
   constructor(accessToken: string) {
     this.accessToken = accessToken
+    console.log('[SpotifyAPI] Initialized with token:', accessToken.substring(0, 10) + '....' + accessToken.substring(accessToken.length - 5))
   }
 
   private get headers() {
@@ -99,18 +100,23 @@ export class SpotifyAPI {
 
   async getGenres(): Promise<string[]> {
     try {
-      console.log('[SpotifyAPI] Fetching available genre seeds...')
-      const response = await axios.get(
-        `${SPOTIFY_API_BASE}/recommendations/available-genre-seeds`,
-        {
-          headers: this.headers,
-        }
-      )
-      console.log('[SpotifyAPI] Got', response.data.genres?.length || 0, 'genres')
+      const url = `${SPOTIFY_API_BASE}/recommendations/available-genre-seeds`
+      console.log('[SpotifyAPI.getGenres] URL:', url)
+      console.log('[SpotifyAPI.getGenres] Auth header:', this.headers.Authorization.substring(0, 20) + '....')
+      
+      const response = await axios.get(url, { headers: this.headers })
+      console.log('[SpotifyAPI.getGenres] Status:', response.status)
+      console.log('[SpotifyAPI.getGenres] Got', response.data.genres?.length || 0, 'genres')
 
       return response.data.genres || []
-    } catch (error) {
-      console.error('[SpotifyAPI] Error getting genres:', error)
+    } catch (error: any) {
+      console.error('[SpotifyAPI.getGenres] Error:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        url: error.config?.url,
+        method: error.config?.method,
+      })
       throw error
     }
   }
@@ -163,13 +169,18 @@ export class SpotifyAPI {
 
   async getCurrentUser() {
     try {
-      const response = await axios.get(`${SPOTIFY_API_BASE}/me`, {
-        headers: this.headers,
-      })
-
+      const url = `${SPOTIFY_API_BASE}/me`
+      console.log('[SpotifyAPI.getCurrentUser] URL:', url)
+      
+      const response = await axios.get(url, { headers: this.headers })
+      console.log('[SpotifyAPI.getCurrentUser] Got user:', response.data.id)
       return response.data
-    } catch (error) {
-      console.error('Error getting current user:', error)
+    } catch (error: any) {
+      console.error('[SpotifyAPI.getCurrentUser] Error:', {
+        message: error.message,
+        status: error.response?.status,
+        url: error.config?.url,
+      })
       throw error
     }
   }
