@@ -65,9 +65,14 @@ export async function POST(request: Request) {
     const spotify = new SpotifyAPI(session.accessToken)
 
     // Get recommendations based on mood
-    console.log('[playlist/generate] Fetching recommendations with targets:', resolvedTargets)
+    console.log('[playlist/generate] seed_genres:', seed_genres)
+    const seedGenres = Array.isArray(seed_genres) && seed_genres.length > 0 
+      ? seed_genres.slice(0, 5).join(',')
+      : undefined
+    
+    console.log('[playlist/generate] Fetching recommendations with targets:', resolvedTargets, 'seedGenres:', seedGenres)
     const recommendations = await spotify.getRecommendations({
-      seed_genres: seed_genres ? seed_genres.slice(0, 5).join(',') : undefined,
+      seed_genres: seedGenres,
       seed_artists: seed_artists ? seed_artists.slice(0, 5).join(',') : undefined,
       target_energy: resolvedTargets.target_energy,
       target_valence: resolvedTargets.target_valence,

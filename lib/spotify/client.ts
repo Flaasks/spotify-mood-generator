@@ -66,6 +66,12 @@ export class SpotifyAPI {
 
   async getRecommendations(params: SpotifySearchParams): Promise<Track[]> {
     try {
+      // Spotify requires at least one seed (artist, genre, or track)
+      if (!params.seed_artists && !params.seed_genres && !params.seed_tracks) {
+        // Use popular genres as fallback
+        params.seed_genres = 'pop,rock,indie,electronic,hip-hop'
+      }
+
       const response = await axios.get(
         `${SPOTIFY_API_BASE}/recommendations`,
         {
@@ -93,16 +99,18 @@ export class SpotifyAPI {
 
   async getGenres(): Promise<string[]> {
     try {
+      console.log('[SpotifyAPI] Fetching available genre seeds...')
       const response = await axios.get(
         `${SPOTIFY_API_BASE}/recommendations/available-genre-seeds`,
         {
           headers: this.headers,
         }
       )
+      console.log('[SpotifyAPI] Got', response.data.genres?.length || 0, 'genres')
 
-      return response.data.genres
+      return response.data.genres || []
     } catch (error) {
-      console.error('Error getting genres:', error)
+      console.error('[SpotifyAPI] Error getting genres:', error)
       throw error
     }
   }

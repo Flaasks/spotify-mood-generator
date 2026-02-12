@@ -102,8 +102,13 @@ export default function Home() {
     const loadGenres = async () => {
       try {
         const response = await fetch('/api/genres')
-        if (!response.ok) return
+        if (!response.ok) {
+          const errorData = await response.json()
+          console.error('Failed to load genres:', response.status, errorData)
+          return
+        }
         const data = await response.json()
+        console.log('Loaded', data.genres?.length || 0, 'genres')
         setGenres(Array.isArray(data.genres) ? data.genres : [])
       } catch (error) {
         console.error('Failed to load genres', error)
