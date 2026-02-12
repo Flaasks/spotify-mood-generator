@@ -199,15 +199,22 @@ const isSwatchLike = (value: unknown): value is SwatchLike => {
 }
 
 const getPaletteFromSwatches = (palette: Record<string, unknown>): PaletteColor[] => {
+  console.log('[getPaletteFromSwatches] Input palette keys:', Object.keys(palette))
   const swatches = Object.values(palette)
     .filter(isSwatchLike)
-    .map((swatch) => ({
-      hex: swatch.getHex(),
-      population: swatch.getPopulation?.() ?? 0,
-    }))
+  console.log('[getPaletteFromSwatches] Found', swatches.length, 'swatch-like objects')
+  
+  const mapped = swatches.map((swatch) => {
+    const hex = swatch.getHex()
+    const pop = swatch.getPopulation?.() ?? 0
+    console.log('[getPaletteFromSwatches] Swatch:', hex, 'population:', pop)
+    return { hex, population: pop }
+  })
 
-  const sorted = swatches.sort((a, b) => b.population - a.population)
-  return sorted.slice(0, MAX_COLORS)
+  const sorted = mapped.sort((a, b) => b.population - a.population)
+  const result = sorted.slice(0, MAX_COLORS)
+  console.log('[getPaletteFromSwatches] Returning', result.length, 'colors:', result.map(c => c.hex))
+  return result
 }
 
 const decodeBase64Image = (imageBase64: string) => {
@@ -222,24 +229,43 @@ export const extractPaletteFromImage = async (params: {
   imageBase64?: string
 }): Promise<PaletteColor[]> => {
   const { imageUrl, imageBase64 } = params
+  console.log('[extractPaletteFromImage] Params:', { imageUrl: !!imageUrl, imageBase64: !!imageBase64 })
 
-  if (!imageUrl && !imageBase64) return []
+  if (!imageUrl && !imageBase64) {
+    console.log('[extractPaletteFromImage] No image provided, returning empty')
+    return []
+  }
 
   let buffer: Buffer
 
-  if (imageBase64) {
-    buffer = decodeBase64Image(imageBase64)
-  } else {
-    const response = await fetch(imageUrl as string)
-    if (!response.ok) {
-      throw new Error('Failed to fetch image')
+  try {
+    if (imageBase64) {
+      console.log('[extractPaletteFromImage] Processing base64...')
+      buffer = decodeBase64Image(imageBase64)
+      console.log('[extractPaletteFromImage] Buffer created, size:', buffer.length, 'bytes')
+    } else {
+      console.log('[extractPaletteFromImage] Fetching from URL:', imageUrl)
+      const response = await fetch(imageUrl as string)
+      if (!response.ok) {
+        throw new Error('Failed to fetch image')
+      }
+      const arrayBuffer = await response.arrayBuffer()
+      buffer = Buffer.from(arrayBuffer)
+      console.log('[extractPaletteFromImage] Buffer created from URL, size:', buffer.length, 'bytes')
     }
-    const arrayBuffer = await response.arrayBuffer()
-    buffer = Buffer.from(arrayBuffer)
-  }
 
-  const palette = await Vibrant.from(buffer).getPalette()
-  return getPaletteFromSwatches(palette)
+    console.log('[extractPaletteFromImage] Calling Vibrant.from()...')
+    const vibrant = Vibrant.from(buffer)
+    const palette = await vibrant.getPalette()
+    console.log('[extractPaletteFromImage] Vibrant palette:', Object.keys(palette))
+    
+    const result = getPaletteFromSwatches(palette)
+    console.log('[extractPaletteFromImage] Final palette:', result)
+    return result
+  } catch (error) {
+    console.error('[extractPaletteFromImage] Error:', error)
+    throw error
+  }
 }
 
 export const mapPaletteToAudioTargets = (paletteHex: string[]) => {
