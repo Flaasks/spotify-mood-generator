@@ -68,10 +68,19 @@ export class SpotifyAPI {
   async getRecommendations(params: SpotifySearchParams): Promise<Track[]> {
     try {
       // Spotify requires at least one seed (artist, genre, or track)
-      if (!params.seed_artists && !params.seed_genres && !params.seed_tracks) {
+      const seedGenres = params.seed_genres
+      const seedArtists = params.seed_artists
+      const seedTracks = params.seed_tracks
+      
+      console.log('[SpotifyAPI.getRecommendations] Seeds:', { seedGenres, seedArtists, seedTracks })
+      
+      if (!seedArtists && !seedTracks && (!seedGenres || seedGenres.length === 0 || seedGenres === '')) {
+        console.log('[SpotifyAPI.getRecommendations] No seeds provided, using defaults')
         // Use popular genres as fallback
         params.seed_genres = 'pop,rock,indie,electronic,hip-hop'
       }
+      
+      console.log('[SpotifyAPI.getRecommendations] Final params:', { ...params, seed_genres: params.seed_genres?.substring(0, 20) + '...' })
 
       const response = await axios.get(
         `${SPOTIFY_API_BASE}/recommendations`,
@@ -84,6 +93,7 @@ export class SpotifyAPI {
         }
       )
 
+      console.log('[SpotifyAPI.getRecommendations] Got', response.data.tracks?.length || 0, 'recommendations')
       return response.data.tracks.map((track: any) => ({
         id: track.id,
         name: track.name,
@@ -92,8 +102,13 @@ export class SpotifyAPI {
         preview_url: track.preview_url,
         image: track.album?.images?.[0]?.url,
       }))
-    } catch (error) {
-      console.error('Error getting recommendations:', error)
+    } catch (error: any) {
+      console.error('[SpotifyAPI.getRecommendations] Error:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        params: error.config?.params,
+      })
       throw error
     }
   }

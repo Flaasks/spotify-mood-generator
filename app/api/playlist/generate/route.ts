@@ -64,13 +64,21 @@ export async function POST(request: Request) {
 
     const spotify = new SpotifyAPI(session.accessToken)
 
+    console.log('[playlist/generate] Audio targets from image:', resolvedTargets)
+    
+    // Log if all targets are default (0)
+    const hasAudioTargets = Object.values(resolvedTargets).some(v => v !== 0 && v !== 60 && v !== -60)
+    if (!hasAudioTargets) {
+      console.warn('[playlist/generate] WARNING: All audio targets are default values!')
+    }
+
     // Get recommendations based on mood
-    console.log('[playlist/generate] seed_genres:', seed_genres)
+    console.log('[playlist/generate] seed_genres:', seed_genres, 'type:', Array.isArray(seed_genres) ? 'array' : typeof seed_genres)
     const seedGenres = Array.isArray(seed_genres) && seed_genres.length > 0 
       ? seed_genres.slice(0, 5).join(',')
       : undefined
     
-    console.log('[playlist/generate] Fetching recommendations with targets:', resolvedTargets, 'seedGenres:', seedGenres)
+    console.log('[playlist/generate] Final seedGenres for API:', seedGenres)
     const recommendations = await spotify.getRecommendations({
       seed_genres: seedGenres,
       seed_artists: seed_artists ? seed_artists.slice(0, 5).join(',') : undefined,

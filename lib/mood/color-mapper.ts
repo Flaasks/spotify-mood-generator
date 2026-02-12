@@ -258,6 +258,13 @@ export const analyzeImageToAudioTargets = async (params: {
   imageUrl?: string
   imageBase64?: string
 }) => {
+  console.log('[analyzeImageToAudioTargets] Starting with params:', { hasImageUrl: !!params.imageUrl, hasImageBase64: !!params.imageBase64 })
   const palette = await extractPaletteFromImage(params)
-  return hexPaletteToAnalysis(palette)
+  console.log('[analyzeImageToAudioTargets] Extracted palette:', palette.length, 'colors')
+  if (palette.length === 0) {
+    console.warn('[analyzeImageToAudioTargets] WARNING: Empty palette returned!')
+  }
+  const result = hexPaletteToAnalysis(palette)
+  console.log('[analyzeImageToAudioTargets] Result targets:', result.targets)
+  return result
 }
