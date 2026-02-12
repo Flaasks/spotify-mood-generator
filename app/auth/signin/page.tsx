@@ -1,10 +1,13 @@
 'use client'
 
+import { Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Music } from 'lucide-react'
 
-export default function SignIn() {
+export const dynamic = 'force-dynamic'
+
+function SignInContent() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-900 via-slate-900 to-slate-900">
       <div className="text-center space-y-6">
@@ -25,5 +28,13 @@ export default function SignIn() {
         </Button>
       </div>
     </div>
+  )
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <SignInContent />
+    </Suspense>
   )
 }
