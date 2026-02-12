@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { AlertCircle } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 export default function AuthError() {
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
